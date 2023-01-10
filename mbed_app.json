@@ -1,0 +1,8 @@
+{
+    "target_overrides": {
+        "NUCLEO_F429ZI": {
+            "target.d11_configuration": "PB_5",
+            "platform.stdio-baud-rate": 9600
+        }
+    }
+}
