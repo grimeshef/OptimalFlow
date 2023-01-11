@@ -12,12 +12,20 @@ include(${MBED_PATH}/tools/cmake/app.cmake)
 project(${APP_TARGET})
 
 add_subdirectory(${MBED_PATH})
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/ethernet_communication)
 
 add_executable(${APP_TARGET}
     main.cpp
-)
+    ethernet_communication/src/crc.cpp
+    ethernet_communication/src/udp_server.cpp)
 
-target_link_libraries(${APP_TARGET} mbed-os)
+target_include_directories(${APP_TARGET} PUBLIC
+        ethernet_communication/include)
+
+target_link_libraries(${APP_TARGET} PUBLIC
+        mbed-os
+        communication
+    )
 
 mbed_set_post_build(${APP_TARGET})
 
