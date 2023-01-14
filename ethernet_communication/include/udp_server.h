@@ -10,7 +10,7 @@
 #include "crc.h"
 
 
-const uint16_t BUFFER_REQ = 200;
+const uint16_t BUFFER_REQ = 4;
 const uint16_t BUFFER_RES = 200;
 
 
@@ -19,18 +19,20 @@ enum class ECmd : uint8_t {
     RUN = 1
 };
 
-
+#pragma pack(push, 1)
 struct Cmd {
     ECmd cmd;
 };
+#pragma pack(pop)
 
-
+#pragma pack(push, 1)
 struct Request {
     Cmd cmd;
     uint16_t crc;
 };
+#pragma pack(pop)
 
-
+#pragma pack(push, 1)
 struct Data {
     uint32_t gyro_one_x;
     uint32_t gyro_one_y;
@@ -42,12 +44,14 @@ struct Data {
     uint32_t gyro_three_y;
     uint32_t gyro_three_z;
 };
+#pragma pack(pop)
 
+#pragma pack(push, 1)
 struct Response {
     Data data;
     uint16_t crc;
 };
-
+#pragma pack(pop)
 
 class UDPServer {
 public:
@@ -83,5 +87,8 @@ private:
     Request _req;
     Data _data;
     Cmd _cmd;
+
+
+    BufferedSerial buf;
 };
 

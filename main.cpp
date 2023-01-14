@@ -19,7 +19,9 @@ Mail<Data, 1> data_box;
 
 [[noreturn]] void blink_loop(){
     DigitalOut led1(PF_13, 1);
+
     while(true) {
+
         auto start_time = Kernel::Clock::now().time_since_epoch();
         led1 = !led1;
         auto delta_time = start_time - Kernel::Clock::now().time_since_epoch();;
@@ -39,11 +41,11 @@ Mail<Data, 1> data_box;
             server.connect();
         }
 
-        data = data_box.try_get();
-        if (data != nullptr) {
-            server.set_data(*data);
-            data_box.free(data);
-        }
+      //  data = data_box.try_get();
+     //   if (data != nullptr) {
+      //      server.set_data(*data);
+      //      data_box.free(data);
+     //   }
 
         if (server.process_request()) {
             udp_watchdog.lock();
@@ -51,11 +53,11 @@ Mail<Data, 1> data_box;
             udp_watchdog.unlock();
         }
 
-        cmd = cmd_box.try_alloc();
-        if (cmd != nullptr) {
-            *cmd = server.get_cmd();
-            cmd_box.put(cmd);
-        }
+    //    cmd = cmd_box.try_alloc();
+    //    if (cmd != nullptr) {
+    //        *cmd = server.get_cmd();
+   //         cmd_box.put(cmd);
+    //    }
 
         auto delta_time = start_time - Kernel::Clock::now().time_since_epoch();;
         ThisThread::sleep_for(chrono::milliseconds(SYSTEM_TIMEOUT - delta_time));

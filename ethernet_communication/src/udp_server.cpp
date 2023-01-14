@@ -7,8 +7,14 @@ UDPServer::UDPServer(const char *mask, const char *gateway, uint16_t port, const
         _ip{ip},
         _mask{mask},
         _gateway{gateway},
-        _port{port}
-{}
+        _port{port},
+        _out_buf{},
+        _req{},
+        _in_buf{},
+        buf(PD_8, PD_9, 115200)
+{
+    buf.set_format(8,mbed::SerialBase::None, 1);
+}
 
 
 UDPServer::~UDPServer() {
@@ -21,7 +27,7 @@ bool UDPServer::process_request() {
     _udp_socket.recvfrom(&_client_addr, _in_buf, BUFFER_REQ);
     memcpy((void *) &_req, (void *) _in_buf, sizeof(Request));
 
-    auto crc = calculate_crc16_ccitt(_in_buf + 1, sizeof(_req) - sizeof(_req.crc));
+    auto crc = calculate_crc16_ccitt(_in_buf, sizeof(_req) - sizeof(_req.crc));
     if (crc == _req.crc) {
         _parse_request(_req);
         _respond(_client_addr);
@@ -60,15 +66,25 @@ const Cmd &UDPServer::get_cmd() const {
 
 
 void UDPServer::_respond(const SocketAddress &addr) {
-    _resp.data.gyro_one_x = _data.gyro_one_x;
-    _resp.data.gyro_one_y = _data.gyro_one_y;
-    _resp.data.gyro_one_z = _data.gyro_one_z;
-    _resp.data.gyro_two_x = _data.gyro_two_x;
-    _resp.data.gyro_two_y = _data.gyro_two_y;
-    _resp.data.gyro_two_z = _data.gyro_two_z;
-    _resp.data.gyro_three_x = _data.gyro_three_x;
-    _resp.data.gyro_three_y = _data.gyro_three_y;
-    _resp.data.gyro_three_z = _data.gyro_three_z;
+//    _resp.data.gyro_one_x = _data.gyro_one_x;
+//    _resp.data.gyro_one_y = _data.gyro_one_y;
+//    _resp.data.gyro_one_z = _data.gyro_one_z;
+//    _resp.data.gyro_two_x = _data.gyro_two_x;
+//    _resp.data.gyro_two_y = _data.gyro_two_y;
+//    _resp.data.gyro_two_z = _data.gyro_two_z;
+//    _resp.data.gyro_three_x = _data.gyro_three_x;
+//    _resp.data.gyro_three_y = _data.gyro_three_y;
+//    _resp.data.gyro_three_z = _data.gyro_three_z;
+
+    _resp.data.gyro_one_x = 0;//_data.gyro_one_x;
+    _resp.data.gyro_one_y = 1;//_data.gyro_one_y;
+    _resp.data.gyro_one_z = 2;//_data.gyro_one_z;
+    _resp.data.gyro_two_x = 3;//_data.gyro_two_x;
+    _resp.data.gyro_two_y = 4;//_data.gyro_two_y;
+    _resp.data.gyro_two_z = 5;//_data.gyro_two_z;
+    _resp.data.gyro_three_x = 6;//_data.gyro_three_x;
+    _resp.data.gyro_three_y = 7;//_data.gyro_three_y;
+    _resp.data.gyro_three_z = 8;//_data.gyro_three_z;
 
     uint16_t crc_offset = sizeof(_resp) - sizeof(_resp.crc);
     memcpy(reinterpret_cast<void *>(_out_buf),
