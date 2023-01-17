@@ -76,15 +76,15 @@ void UDPServer::_respond(const SocketAddress &addr) {
 //    _resp.data.gyro_three_y = _data.gyro_three_y;
 //    _resp.data.gyro_three_z = _data.gyro_three_z;
 
-    _resp.data.gyro_one_x = 0;//_data.gyro_one_x;
-    _resp.data.gyro_one_y = 1;//_data.gyro_one_y;
-    _resp.data.gyro_one_z = 2;//_data.gyro_one_z;
-    _resp.data.gyro_two_x = 3;//_data.gyro_two_x;
-    _resp.data.gyro_two_y = 4;//_data.gyro_two_y;
-    _resp.data.gyro_two_z = 5;//_data.gyro_two_z;
-    _resp.data.gyro_three_x = 6;//_data.gyro_three_x;
-    _resp.data.gyro_three_y = 7;//_data.gyro_three_y;
-    _resp.data.gyro_three_z = 8;//_data.gyro_three_z;
+    _resp.data.gyro_one_x = 1;//_data.gyro_one_x;
+    _resp.data.gyro_one_y = 2;//_data.gyro_one_y;
+    _resp.data.gyro_one_z = 3;//_data.gyro_one_z;
+    _resp.data.gyro_two_x = 4;//_data.gyro_two_x;
+    _resp.data.gyro_two_y = 5;//_data.gyro_two_y;
+    _resp.data.gyro_two_z = 6;//_data.gyro_two_z;
+    _resp.data.gyro_three_x = 7;//_data.gyro_three_x;
+    _resp.data.gyro_three_y = 8;//_data.gyro_three_y;
+    _resp.data.gyro_three_z = 9;//_data.gyro_three_z;
 
     uint16_t crc_offset = sizeof(_resp) - sizeof(_resp.crc);
     memcpy(reinterpret_cast<void *>(_out_buf),

@@ -12,9 +12,13 @@ int watchdog_udp_connection_timer = 0;
 
 Thread blink;
 Thread udp_communication_thread{osPriorityBelowNormal, 4096};
+Thread logic_thread;
+Thread imu_handler_thread;
 
 Mail<Cmd, 1> cmd_box;
 Mail<Data, 1> data_box;
+
+Mail<Data, 1> imu_data_box;
 
 
 [[noreturn]] void blink_loop(){
@@ -65,9 +69,40 @@ Mail<Data, 1> data_box;
 }
 
 
+[[noreturn]] void imu_handler_loop() {
+
+    while (true) {
+        auto start_time = Kernel::Clock::now().time_since_epoch();
+
+
+
+        auto delta_time = start_time - Kernel::Clock::now().time_since_epoch();;
+        ThisThread::sleep_for(chrono::milliseconds(SYSTEM_TIMEOUT - delta_time));
+    }
+}
+
+
+[[noreturn]] void logic_loop() {
+
+    while (true) {
+        auto start_time = Kernel::Clock::now().time_since_epoch();
+
+
+
+        auto delta_time = start_time - Kernel::Clock::now().time_since_epoch();;
+        ThisThread::sleep_for(chrono::milliseconds(SYSTEM_TIMEOUT - delta_time));
+    }
+}
+
+
+
+
 int main()
 {
     blink.start(callback(blink_loop));
     udp_communication_thread.start(callback(udp_communication_loop));
+    logic_thread.start(callback(logic_loop));
+    imu_handler_thread.start(callback(imu_handler_loop));
+
     return 0;
 }
