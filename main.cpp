@@ -4,6 +4,7 @@
  */
 #include "mbed.h"
 #include "udp_server.h"
+#include "imu_handler.h"
 
 const auto SYSTEM_TIMEOUT = 25ms;
 Mutex udp_watchdog;
@@ -18,7 +19,7 @@ Thread imu_handler_thread;
 Mail<Cmd, 1> cmd_box;
 Mail<Data, 1> data_box;
 
-Mail<Data, 1> imu_data_box;
+Mail<DataIMU, 1> imu_data_box;
 
 
 [[noreturn]] void blink_loop(){
@@ -38,6 +39,8 @@ Mail<Data, 1> imu_data_box;
     Cmd *cmd = nullptr;
     Data *data = nullptr;
 
+    DataIMU *data_imu = nullptr;
+
     while(true) {
         auto start_time = Kernel::Clock::now().time_since_epoch();
 
@@ -45,11 +48,17 @@ Mail<Data, 1> imu_data_box;
             server.connect();
         }
 
-      //  data = data_box.try_get();
-     //   if (data != nullptr) {
-      //      server.set_data(*data);
-      //      data_box.free(data);
-     //   }
+//        data = data_box.try_get();
+//        if (data != nullptr) {
+//            server.set_data(*data);
+//            data_box.free(data);
+//        }
+
+        data_imu = imu_data_box.try_get();
+        if (data_imu != nullptr) {
+            server.set_data_imu_first(*data_imu);
+            imu_data_box.free(data_imu);
+        }
 
         if (server.process_request()) {
             udp_watchdog.lock();
@@ -71,11 +80,17 @@ Mail<Data, 1> imu_data_box;
 
 [[noreturn]] void imu_handler_loop() {
 
+    IMUHandler imu(PA_9, PA_10, PA_8);
+    DataIMU *data = nullptr;
     while (true) {
         auto start_time = Kernel::Clock::now().time_since_epoch();
 
-
-
+        imu.process();
+            data = imu_data_box.try_alloc();
+            if (data != nullptr) {
+                *data = imu.get_data();
+                 imu_data_box.put(data);
+            }
         auto delta_time = start_time - Kernel::Clock::now().time_since_epoch();;
         ThisThread::sleep_for(chrono::milliseconds(SYSTEM_TIMEOUT - delta_time));
     }

@@ -66,25 +66,42 @@ const Cmd &UDPServer::get_cmd() const {
 
 
 void UDPServer::_respond(const SocketAddress &addr) {
-//    _resp.data.gyro_one_x = _data.gyro_one_x;
-//    _resp.data.gyro_one_y = _data.gyro_one_y;
-//    _resp.data.gyro_one_z = _data.gyro_one_z;
-//    _resp.data.gyro_two_x = _data.gyro_two_x;
-//    _resp.data.gyro_two_y = _data.gyro_two_y;
-//    _resp.data.gyro_two_z = _data.gyro_two_z;
-//    _resp.data.gyro_three_x = _data.gyro_three_x;
-//    _resp.data.gyro_three_y = _data.gyro_three_y;
-//    _resp.data.gyro_three_z = _data.gyro_three_z;
 
-    _resp.data.gyro_one_x = 1;//_data.gyro_one_x;
-    _resp.data.gyro_one_y = 2;//_data.gyro_one_y;
-    _resp.data.gyro_one_z = 3;//_data.gyro_one_z;
-    _resp.data.gyro_two_x = 4;//_data.gyro_two_x;
-    _resp.data.gyro_two_y = 5;//_data.gyro_two_y;
-    _resp.data.gyro_two_z = 6;//_data.gyro_two_z;
-    _resp.data.gyro_three_x = 7;//_data.gyro_three_x;
-    _resp.data.gyro_three_y = 8;//_data.gyro_three_y;
-    _resp.data.gyro_three_z = 9;//_data.gyro_three_z;
+    _resp.data.data_imu_first.sign_roll = _data_imu_first.sign_roll;
+    _resp.data.data_imu_first.angle_roll = _data_imu_first.angle_roll;
+    _resp.data.data_imu_first.minutes_roll = _data_imu_first.minutes_roll;
+
+    _resp.data.data_imu_first.sign_pitch = _data_imu_first.sign_pitch;
+    _resp.data.data_imu_first.angle_pitch = _data_imu_first.angle_pitch;
+    _resp.data.data_imu_first.minutes_pitch = _data_imu_first.minutes_pitch;
+
+    _resp.data.data_imu_first.sign_yaw = _data_imu_first.sign_yaw;
+    _resp.data.data_imu_first.angle_yaw = _data_imu_first.angle_yaw;
+    _resp.data.data_imu_first.minutes_yaw = _data_imu_first.minutes_yaw;
+
+    _resp.data.data_imu_first.sign_acc_x = _data_imu_first.sign_acc_x;
+    _resp.data.data_imu_first.whole_acc_x = _data_imu_first.whole_acc_x;
+    _resp.data.data_imu_first.fraction_acc_x = _data_imu_first.fraction_acc_x;
+
+    _resp.data.data_imu_first.sign_acc_y = _data_imu_first.sign_acc_y;
+    _resp.data.data_imu_first.whole_acc_y = _data_imu_first.whole_acc_y;
+    _resp.data.data_imu_first.fraction_acc_y = _data_imu_first.fraction_acc_y;
+
+    _resp.data.data_imu_first.sign_acc_z = _data_imu_first.sign_acc_z;
+    _resp.data.data_imu_first.whole_acc_z = _data_imu_first.whole_acc_z;
+    _resp.data.data_imu_first.fraction_acc_z = _data_imu_first.fraction_acc_z;
+
+    _resp.data.data_imu_first.sign_gyro_x = _data_imu_first.sign_gyro_x;
+    _resp.data.data_imu_first.angle_gyro_x = _data_imu_first.angle_gyro_x;
+    _resp.data.data_imu_first.minutes_gyro_x = _data_imu_first.minutes_gyro_x;
+
+    _resp.data.data_imu_first.sign_gyro_y = _data_imu_first.sign_gyro_y;
+    _resp.data.data_imu_first.angle_gyro_y = _data_imu_first.angle_gyro_y;
+    _resp.data.data_imu_first.minutes_gyro_y = _data_imu_first.minutes_gyro_y;
+
+    _resp.data.data_imu_first.sign_gyro_z = _data_imu_first.sign_gyro_z;
+    _resp.data.data_imu_first.angle_gyro_z = _data_imu_first.angle_gyro_z;
+    _resp.data.data_imu_first.minutes_gyro_z = _data_imu_first.minutes_gyro_z;
 
     uint16_t crc_offset = sizeof(_resp) - sizeof(_resp.crc);
     memcpy(reinterpret_cast<void *>(_out_buf),
@@ -96,5 +113,9 @@ void UDPServer::_respond(const SocketAddress &addr) {
            reinterpret_cast<void *>(&_resp.crc), sizeof(_resp.crc));
 
     _udp_socket.sendto(addr, _out_buf, sizeof(Response));
+}
+
+void UDPServer::set_data_imu_first(const DataIMU &data) {
+    _data_imu_first = data;
 }
 

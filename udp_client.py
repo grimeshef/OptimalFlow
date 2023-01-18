@@ -14,15 +14,41 @@ addr = (host, port)
 
 
 class DataReceive:
-    gyro_one_x = np.uint32
-    gyro_one_y = np.uint32
-    gyro_one_z = np.uint32
-    gyro_two_x = np.uint32
-    gyro_two_y = np.uint32
-    gyro_two_z = np.uint32
-    gyro_three_x = np.uint32
-    gyro_three_y = np.uint32
-    gyro_three_z = np.uint32
+    sign_roll = np.uint8
+    angle_roll = np.uint8
+    minutes_roll = np.uint8
+
+    sign_pitch = np.uint8
+    angle_pitch = np.uint8
+    minutes_pitch = np.uint8
+
+    sign_yaw = np.uint8
+    angle_yaw = np.uint8
+    minutes_yaw = np.uint8
+
+    sign_acc_x = np.uint8
+    whole_acc_x = np.uint8
+    fraction_acc_x = np.uint8
+
+    sign_acc_y = np.uint8
+    whole_acc_y = np.uint8
+    fraction_acc_y = np.uint8
+
+    sign_acc_z = np.uint8
+    whole_acc_z = np.uint8
+    fraction_acc_z = np.uint8
+
+    sign_gyro_x = np.uint8
+    angle_gyro_x = np.uint8
+    minutes_gyro_x = np.uint8
+
+    sign_gyro_y = np.uint8
+    angle_gyro_y = np.uint8
+    minutes_gyro_y = np.uint8
+
+    sign_gyro_z = np.uint8
+    angle_gyro_z = np.uint8
+    minutes_gyro_z = np.uint8
 
 
 udp_socket = socket(AF_INET, SOCK_DGRAM)
@@ -55,19 +81,84 @@ try:
                 crc_rec_data = Crc16CcittFalse.calc(bytes_rec[0:-2])
                 crc_rec_stm = unpack('<H', bytes_rec[-2:])[0]
                 if crc_rec_data == crc_rec_stm:
-                    data_rec.gyro_one_x = unpack('<I', bytes_rec[0:4])[0]
-                    data_rec.gyro_one_y = unpack('<I', bytes_rec[4:8])[0]
-                    data_rec.gyro_one_z = unpack('<I', bytes_rec[8:12])[0]
-                    data_rec.gyro_two_x = unpack('<I', bytes_rec[12:16])[0]
-                    data_rec.gyro_two_y = unpack('<I', bytes_rec[16:20])[0]
-                    data_rec.gyro_two_z = unpack('<I', bytes_rec[20:24])[0]
-                    data_rec.gyro_three_x = unpack('<I', bytes_rec[24:28])[0]
-                    data_rec.gyro_three_y = unpack('<I', bytes_rec[28:32])[0]
-                    data_rec.gyro_three_z = unpack('<I', bytes_rec[32:36])[0]
-                    for key, value in data_rec.__dict__.items():
-                        if not isinstance(types.FunctionType, types.MethodType):
-                            print(key, value)
+                    data_rec.sign_roll = unpack('<B', bytes_rec[0:1])[0]
+                    data_rec.angle_roll = unpack('<B', bytes_rec[1:2])[0]
+                    data_rec.minutes_roll = unpack('<B', bytes_rec[2:3])[0]
 
+                    data_rec.sign_pitch = unpack('<B', bytes_rec[3:4])[0]
+                    data_rec.angle_pitch = unpack('<B', bytes_rec[4:5])[0]
+                    data_rec.minutes_pitch = unpack('<B', bytes_rec[5:6])[0]
+
+                    data_rec.sign_yaw = unpack('<B', bytes_rec[6:7])[0]
+                    data_rec.angle_yaw = unpack('<B', bytes_rec[7:8])[0]
+                    data_rec.minutes_yaw = unpack('<B', bytes_rec[8:9])[0]
+
+                    data_rec.sign_acc_x = unpack('<B', bytes_rec[9:10])[0]
+                    data_rec.whole_acc_x = unpack('<B', bytes_rec[10:11])[0]
+                    data_rec.fraction_acc_x = unpack('<B', bytes_rec[11:12])[0]
+
+                    data_rec.sign_acc_y = unpack('<B', bytes_rec[12:13])[0]
+                    data_rec.whole_acc_y = unpack('<B', bytes_rec[13:14])[0]
+                    data_rec.fraction_acc_y = unpack('<B', bytes_rec[14:15])[0]
+
+                    data_rec.sign_acc_z = unpack('<B', bytes_rec[15:16])[0]
+                    data_rec.whole_acc_z = unpack('<B', bytes_rec[16:17])[0]
+                    data_rec.fraction_acc_z = unpack('<B', bytes_rec[17:18])[0]
+
+                    data_rec.sign_gyro_x = unpack('<B', bytes_rec[18:19])[0]
+                    data_rec.angle_gyro_x = unpack('<B', bytes_rec[19:20])[0]
+                    data_rec.minutes_gyro_x = unpack('<B', bytes_rec[20:21])[0]
+
+                    data_rec.sign_gyro_y = unpack('<B', bytes_rec[21:22])[0]
+                    data_rec.angle_gyro_y = unpack('<B', bytes_rec[22:23])[0]
+                    data_rec.minutes_gyro_y = unpack('<B', bytes_rec[23:24])[0]
+
+                    data_rec.sign_gyro_z = unpack('<B', bytes_rec[24:25])[0]
+                    data_rec.angle_gyro_z = unpack('<B', bytes_rec[25:26])[0]
+                    data_rec.minutes_gyro_z = unpack('<B', bytes_rec[26:27])[0]
+
+                    # for key, value in data_rec.__dict__.items():
+                    #     if not isinstance(types.FunctionType, types.MethodType):
+                    #         print(key, value)
+
+                    # print("sign_roll", data_rec.sign_roll)
+                    # print("angle_roll", data_rec.angle_roll)
+                    # print("minutes_roll", data_rec.minutes_roll)
+                    # print("")
+                    print("sign_roll", data_rec.sign_pitch)
+                    print("angle_roll", data_rec.angle_pitch)
+                    print("minutes_roll", data_rec.minutes_pitch)
+                    print("")
+                    print("sign_pitch", data_rec.sign_yaw)
+                    print("angle_pitch", data_rec.angle_yaw)
+                    print("minutes_pitch", data_rec.minutes_yaw)
+                    print("")
+                    print("sign_yaw", data_rec.sign_acc_x)
+                    print("angle_yaw", data_rec.whole_acc_x)
+                    print("minutes_yaw", data_rec.fraction_acc_x)
+                    # print("sign_acc_x", data_rec.sign_acc_x)
+                    # print("whole_acc_x", data_rec.whole_acc_x)
+                    # print("fraction_acc_x", data_rec.fraction_acc_x)
+                    # print("")
+                    # print("sign_acc_y", data_rec.sign_acc_y)
+                    # print("whole_acc_y", data_rec.whole_acc_y)
+                    # print("fraction_acc_y", data_rec.fraction_acc_y)
+                    # print("")
+                    # print("sign_acc_z", data_rec.sign_acc_z)
+                    # print("whole_acc_z", data_rec.whole_acc_z)
+                    # print("fraction_acc_z", data_rec.fraction_acc_z)
+                    # print("")
+                    # print("sign_gyro_x", data_rec.sign_gyro_x)
+                    # print("angle_gyro_x", data_rec.angle_gyro_x)
+                    # print("minutes_gyro_x", data_rec.minutes_gyro_x)
+                    # print("")
+                    # print("sign_gyro_y", data_rec.sign_gyro_y)
+                    # print("angle_gyro_y", data_rec.angle_gyro_y)
+                    # print("minutes_gyro_y", data_rec.minutes_gyro_y)
+                    # print("")
+                    # print("sign_gyro_z", data_rec.sign_gyro_z)
+                    # print("angle_gyro_z", data_rec.angle_gyro_z)
+                    # print("minutes_gyro_z", data_rec.minutes_gyro_z)
         except TimeoutError:
             pass
         # b = int.from_bytes(pack(receive[0] + receive[1]), byteorder='big', signed=False)

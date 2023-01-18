@@ -8,6 +8,7 @@
 #include "EthernetInterface.h"
 #include "UDPSocket.h"
 #include "crc.h"
+#include "imu_handler.h"
 
 
 const uint16_t BUFFER_REQ = 4;
@@ -34,15 +35,7 @@ struct Request {
 
 #pragma pack(push, 1)
 struct Data {
-    uint32_t gyro_one_x;
-    uint32_t gyro_one_y;
-    uint32_t gyro_one_z;
-    uint32_t gyro_two_x;
-    uint32_t gyro_two_y;
-    uint32_t gyro_two_z;
-    uint32_t gyro_three_x;
-    uint32_t gyro_three_y;
-    uint32_t gyro_three_z;
+    DataIMU data_imu_first;
 };
 #pragma pack(pop)
 
@@ -65,6 +58,7 @@ public:
     void connect();
     bool is_connected() const;
     void set_data(const Data &data);
+    void set_data_imu_first(const DataIMU &data);
     const Cmd &get_cmd() const;
 
 private:
@@ -87,6 +81,8 @@ private:
     Request _req;
     Data _data;
     Cmd _cmd;
+
+    DataIMU _data_imu_first;
 
 
     BufferedSerial buf;
