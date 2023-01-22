@@ -10,10 +10,8 @@ UDPServer::UDPServer(const char *mask, const char *gateway, uint16_t port, const
         _port{port},
         _out_buf{},
         _req{},
-        _in_buf{},
-        buf(PD_8, PD_9, 115200)
+        _in_buf{}
 {
-    buf.set_format(8,mbed::SerialBase::None, 1);
 }
 
 
@@ -66,6 +64,10 @@ const Cmd &UDPServer::get_cmd() const {
 
 
 void UDPServer::_respond(const SocketAddress &addr) {
+    _resp.data.data_imu_first.cmd_1= _data_imu_first.cmd_1;
+    _resp.data.data_imu_first.cmd_2= _data_imu_first.cmd_2;
+    _resp.data.data_imu_first.cmd_3= _data_imu_first.cmd_3;
+    _resp.data.data_imu_first.cmd_4= _data_imu_first.cmd_4;
 
     _resp.data.data_imu_first.sign_roll = _data_imu_first.sign_roll;
     _resp.data.data_imu_first.angle_roll = _data_imu_first.angle_roll;
@@ -102,6 +104,8 @@ void UDPServer::_respond(const SocketAddress &addr) {
     _resp.data.data_imu_first.sign_gyro_z = _data_imu_first.sign_gyro_z;
     _resp.data.data_imu_first.angle_gyro_z = _data_imu_first.angle_gyro_z;
     _resp.data.data_imu_first.minutes_gyro_z = _data_imu_first.minutes_gyro_z;
+
+    _resp.data.data_imu_first.crc = _data.data_imu_first.crc;
 
     uint16_t crc_offset = sizeof(_resp) - sizeof(_resp.crc);
     memcpy(reinterpret_cast<void *>(_out_buf),

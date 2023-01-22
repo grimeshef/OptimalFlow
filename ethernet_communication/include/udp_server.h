@@ -83,8 +83,5 @@ private:
     Cmd _cmd;
 
     DataIMU _data_imu_first;
-
-
-    BufferedSerial buf;
 };
 
