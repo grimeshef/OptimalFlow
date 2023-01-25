@@ -55,17 +55,25 @@ class DataReceive:
     angle_gyro_z = np.uint8
     minutes_gyro_z = np.uint8
 
+    roll = np.double
+    pitch = np.double
+    yaw = np.double
+
+    acc_x = np.double
+    acc_y = np.double
+    acc_z = np.double
+
+    gyro_x = np.double
+    gyro_y = np.double
+    gyro_z = np.double
+
     crc_imu = np.uint8
+
 
 udp_socket = socket(AF_INET, SOCK_DGRAM)
 udp_socket.settimeout(1)
 data = b'1'
 ping = 10
-# data = input('write to server: ')
-# data = input("input: ")
-# if not data:
-#     udp_socket.close()
-#     sys.exit(1)
 
 # encode - перекодирует введенные данные в байты, decode - обратно
 # data = str.encode(data)
@@ -128,47 +136,35 @@ try:
                     data_rec.angle_gyro_z = unpack('<B', bytes_rec[29:30])[0]
                     data_rec.minutes_gyro_z = unpack('<B', bytes_rec[30:31])[0]
 
-                    data_rec.crc_imu = unpack('<B', bytes_rec[31:32])[0]
+                    data_rec.roll = unpack('<d', bytes_rec[31:39])[0]
+                    data_rec.pitch = unpack('<d', bytes_rec[39:47])[0]
+                    data_rec.yaw = unpack('<d', bytes_rec[47:55])[0]
+
+                    data_rec.acc_x = unpack('<d', bytes_rec[55:63])[0]
+                    data_rec.acc_y = unpack('<d', bytes_rec[63:71])[0]
+                    data_rec.acc_z = unpack('<d', bytes_rec[71:79])[0]
+
+                    data_rec.gyro_x = unpack('<d', bytes_rec[79:87])[0]
+                    data_rec.gyro_y = unpack('<d', bytes_rec[87:95])[0]
+                    data_rec.gyro_z = unpack('<d', bytes_rec[95:103])[0]
+
+                    data_rec.crc_imu = unpack('<B', bytes_rec[103:104])[0]
 
                     # for key, value in data_rec.__dict__.items():
                     #     if not isinstance(types.FunctionType, types.MethodType):
                     #         print(key, value)
-
-                    print("sign_roll", data_rec.sign_roll)
-                    print("angle_roll", data_rec.angle_roll)
-                    print("minutes_roll", data_rec.minutes_roll)
+                    print("roll", data_rec.roll)
+                    print("pitch", data_rec.pitch)
+                    print("yaw", data_rec.yaw)
                     print("")
-                    print("sign_pitch", data_rec.sign_pitch)
-                    print("angle_pitch", data_rec.angle_pitch)
-                    print("minutes_pitch", data_rec.minutes_pitch)
+                    print("acc_x", data_rec.acc_x)
+                    print("acc_y", data_rec.acc_y)
+                    print("acc_z", data_rec.acc_z)
                     print("")
-                    print("sign_yaw", data_rec.sign_yaw)
-                    print("angle_yaw", data_rec.angle_yaw)
-                    print("minutes_yaw", data_rec.minutes_yaw)
+                    print("gyro_x", data_rec.gyro_x)
+                    print("gyro_y", data_rec.gyro_y)
+                    print("gyro_z", data_rec.gyro_z)
                     print("")
-                    print("sign_acc_x", data_rec.sign_acc_x)
-                    print("whole_acc_x", data_rec.whole_acc_x)
-                    print("fraction_acc_x", data_rec.fraction_acc_x)
-                    print("")
-                    print("sign_acc_y", data_rec.sign_acc_y)
-                    print("whole_acc_y", data_rec.whole_acc_y)
-                    print("fraction_acc_y", data_rec.fraction_acc_y)
-                    print("")
-                    print("sign_acc_z", data_rec.sign_acc_z)
-                    print("whole_acc_z", data_rec.whole_acc_z)
-                    print("fraction_acc_z", data_rec.fraction_acc_z)
-                    print("")
-                    print("sign_gyro_x", data_rec.sign_gyro_x)
-                    print("angle_gyro_x", data_rec.angle_gyro_x)
-                    print("minutes_gyro_x", data_rec.minutes_gyro_x)
-                    print("")
-                    print("sign_gyro_y", data_rec.sign_gyro_y)
-                    print("angle_gyro_y", data_rec.angle_gyro_y)
-                    print("minutes_gyro_y", data_rec.minutes_gyro_y)
-                    print("")
-                    print("sign_gyro_z", data_rec.sign_gyro_z)
-                    print("angle_gyro_z", data_rec.angle_gyro_z)
-                    print("minutes_gyro_z", data_rec.minutes_gyro_z)
         except TimeoutError:
             pass
         # b = int.from_bytes(pack(receive[0] + receive[1]), byteorder='big', signed=False)

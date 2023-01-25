@@ -21,6 +21,7 @@ void IMUHandler::process() {
     _set_cmd();
     _transmit();
     _receive();
+//    _rec_parse();
 }
 
 void IMUHandler::_transmit() {
@@ -48,75 +49,27 @@ void IMUHandler::_tx_callback(int event) {
 }
 
 void IMUHandler::_rx_callback(int event) {
-    _data_imu.cmd_1 = _buf_rec[0];
-    _data_imu.cmd_2 = _buf_rec[1];
-    _data_imu.cmd_3 = _buf_rec[2];
-    _data_imu.cmd_4 = _buf_rec[3];
+    _data_imu.roll = _three_bytes_to_double(_buf_rec[4], _buf_rec[5], _buf_rec[6]);
+    _data_imu.pitch = _three_bytes_to_double(_buf_rec[7], _buf_rec[8], _buf_rec[9]);
+    _data_imu.yaw = _three_bytes_to_double(_buf_rec[10], _buf_rec[11], _buf_rec[12]);
 
-    _data_imu.sign_roll = _buf_rec[4];
-    _data_imu.angle_roll = _buf_rec[5];
-    _data_imu.minutes_roll = _buf_rec[6];
+    _data_imu.acc_x = _three_bytes_to_double(_buf_rec[13], _buf_rec[14], _buf_rec[15]);
+    _data_imu.acc_y = _three_bytes_to_double(_buf_rec[16], _buf_rec[17], _buf_rec[18]);
+    _data_imu.acc_z = _three_bytes_to_double(_buf_rec[19], _buf_rec[20], _buf_rec[21]);
 
-    _data_imu.sign_pitch = _buf_rec[7];
-    _data_imu.angle_pitch = _buf_rec[8];
-    _data_imu.minutes_pitch = _buf_rec[9];
-
-    _data_imu.sign_yaw = _buf_rec[10];
-    _data_imu.angle_yaw = _buf_rec[11];
-    _data_imu.minutes_yaw = _buf_rec[12];
-
-    _data_imu.sign_acc_x = _buf_rec[13];
-    _data_imu.whole_acc_x = _buf_rec[14];
-    _data_imu.fraction_acc_x = _buf_rec[15];
-
-    _data_imu.sign_acc_y = _buf_rec[16];
-    _data_imu.whole_acc_y = _buf_rec[17];
-    _data_imu.fraction_acc_y = _buf_rec[18];
-
-    _data_imu.sign_acc_z = _buf_rec[19];
-    _data_imu.whole_acc_z = _buf_rec[20];
-    _data_imu.fraction_acc_z = _buf_rec[21];
-
-    _data_imu.sign_gyro_x = _buf_rec[22];
-    _data_imu.angle_gyro_x = _buf_rec[23];
-    _data_imu.minutes_gyro_x = _buf_rec[24];
-
-    _data_imu.sign_gyro_y = _buf_rec[25];
-    _data_imu.angle_gyro_y = _buf_rec[26];
-    _data_imu.minutes_gyro_y = _buf_rec[27];
-
-    _data_imu.sign_gyro_z = _buf_rec[28];
-    _data_imu.angle_gyro_z = _buf_rec[29];
-    _data_imu.minutes_gyro_z = _buf_rec[30];
+    _data_imu.gyro_x = _three_bytes_to_double(_buf_rec[22], _buf_rec[23], _buf_rec[24]);
+    _data_imu.gyro_y = _three_bytes_to_double(_buf_rec[25], _buf_rec[26], _buf_rec[27]);
+    _data_imu.gyro_z = _three_bytes_to_double(_buf_rec[28], _buf_rec[29], _buf_rec[30]);
 
     _data_imu.crc = _buf_rec[31];
 
     _rx_completed.set(RX_COMPLETED_FLAG);
 }
 
-void IMUHandler::_get_gyro_x() {
-
-}
-
-void IMUHandler::_get_gyro_y() {
-
-}
-
-void IMUHandler::_get_gyro_z() {
-
-}
-
 const DataIMU &IMUHandler::get_data() {
     return _data_imu;
 }
 
-int8_t IMUHandler::_checksum(const uint8_t buf[], int size) {
-    int8_t sum = 0;
-    for (int i = 1; i < size - 1; i++) {
-        sum += buf[i];
-    }
-    return sum;
-}
 
 void IMUHandler::_set_cmd() {
     _buf_req[0] = 0x68;
@@ -124,49 +77,28 @@ void IMUHandler::_set_cmd() {
     _buf_req[2] = 0x00;
     _buf_req[3] = 0x84;
     _buf_req[4] = 0xA3;
-
-//    _buf_req[0] = 0x68;
-//    _buf_req[1] = 0x05;
-//    _buf_req[2] = 0x00;
-//    _buf_req[3] = 0x0C;
-//    _buf_req[4] = 0x06;
-//    _buf_req[5] = 0x17;
 }
 
-void IMUHandler::_rec_parse(const uint8_t *buf) {
-//    _data_imu.sign_roll = buf[1];
-//    _data_imu.angle_roll = buf[2];
-//    _data_imu.minutes_roll = buf[3];
-//
-//    _data_imu.sign_pitch = buf[4];
-//    _data_imu.angle_pitch = buf[5];
-//    _data_imu.minutes_pitch = buf[6];
-//
-//    _data_imu.sign_yaw = buf[7];
-//    _data_imu.angle_yaw = buf[8];
-//    _data_imu.minutes_yaw = buf[9];
-//
-//    _data_imu.sign_acc_x = buf[10];
-//    _data_imu.whole_acc_x = buf[11];
-//    _data_imu.fraction_acc_x = buf[12];
-//
-//    _data_imu.sign_acc_y = buf[13];
-//    _data_imu.whole_acc_y = buf[14];
-//    _data_imu.fraction_acc_y = buf[15];
-//
-//    _data_imu.sign_acc_z = buf[16];
-//    _data_imu.whole_acc_z = buf[17];
-//    _data_imu.fraction_acc_z = buf[18];
-//
-//    _data_imu.sign_gyro_x = buf[19];
-//    _data_imu.angle_gyro_x = buf[20];
-//    _data_imu.minutes_gyro_x = buf[21];
-//
-//    _data_imu.sign_gyro_y = buf[22];
-//    _data_imu.angle_gyro_y = buf[23];
-//    _data_imu.minutes_gyro_y = buf[23];
-//
-//    _data_imu.sign_gyro_z = buf[25];
-//    _data_imu.angle_gyro_z = buf[26];
-//    _data_imu.minutes_gyro_z = buf[27];
+
+const double IMUHandler::_three_bytes_to_double(const uint8_t sign, const uint8_t whole, const uint8_t fraction) const {
+    double number = 0.0;
+    switch (sign) {
+        case 0x00: number = convert_to_dec(whole) + convert_to_dec(fraction) * 0.01; break;
+        case 0x01: number = 100 + convert_to_dec(whole) + convert_to_dec(fraction) * 0.01; break;
+        case 0x10: number = -(convert_to_dec(whole) + convert_to_dec(fraction) * 0.01); break;
+        case 0x11: number = -(100 + convert_to_dec(whole) + convert_to_dec(fraction) * 0.01); break;
+        default: break;
+    }
+    return number;
+}
+
+std::uint32_t IMUHandler::convert_to_dec(const uint8_t number) const {
+    uint32_t dec_num = 0;
+    if (number/16 > 0) {
+        dec_num = number - number/16 * 6;
+    }
+    else {
+        dec_num = number;
+    }
+    return dec_num;
 }

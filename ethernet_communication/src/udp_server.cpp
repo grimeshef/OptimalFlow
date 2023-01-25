@@ -105,6 +105,18 @@ void UDPServer::_respond(const SocketAddress &addr) {
     _resp.data.data_imu_first.angle_gyro_z = _data_imu_first.angle_gyro_z;
     _resp.data.data_imu_first.minutes_gyro_z = _data_imu_first.minutes_gyro_z;
 
+    _resp.data.data_imu_first.roll = _data_imu_first.roll;
+    _resp.data.data_imu_first.pitch = _data_imu_first.pitch;
+    _resp.data.data_imu_first.yaw = _data_imu_first.yaw;
+
+    _resp.data.data_imu_first.acc_x = _data_imu_first.acc_x;
+    _resp.data.data_imu_first.acc_y = _data_imu_first.acc_y;
+    _resp.data.data_imu_first.acc_z = _data_imu_first.acc_z;
+
+    _resp.data.data_imu_first.gyro_x = _data_imu_first.gyro_x;
+    _resp.data.data_imu_first.gyro_y = _data_imu_first.gyro_y;
+    _resp.data.data_imu_first.gyro_z = _data_imu_first.gyro_z;
+
     _resp.data.data_imu_first.crc = _data.data_imu_first.crc;
 
     uint16_t crc_offset = sizeof(_resp) - sizeof(_resp.crc);

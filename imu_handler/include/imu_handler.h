@@ -68,6 +68,18 @@ struct DataIMU {
     uint8_t angle_gyro_z;
     uint8_t minutes_gyro_z;
 
+    double roll;
+    double pitch;
+    double yaw;
+
+    double acc_x;
+    double acc_y;
+    double acc_z;
+
+    double gyro_x;
+    double gyro_y;
+    double gyro_z;
+
     uint8_t crc;
 };
 #pragma pack(pop)
@@ -100,10 +112,7 @@ private:
     uint8_t _buf_rec[BUF_SIZE_REC];
     DataIMU _data_imu;
 
-    int8_t _checksum(const uint8_t buf[], int size);
-    void _rec_parse(const uint8_t buf[]);
-    void _get_gyro_x();
-    void _get_gyro_y();
-    void _get_gyro_z();
     void _set_cmd();
+    const double _three_bytes_to_double(const uint8_t sign, const uint8_t whole, const uint8_t fraction) const;
+    std::uint32_t convert_to_dec(const uint8_t number) const;
 };
