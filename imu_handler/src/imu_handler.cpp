@@ -3,11 +3,13 @@
 //
 
 #include "imu_handler.h"
+#include "math.h"
 
 RawSerial::RawSerial(PinName tx, PinName rx, int baud)
         :
         SerialBase(tx, rx, baud) {
 }
+
 
 IMUHandler::IMUHandler(PinName tx, PinName rx, PinName dir, int baud) :
         _communication(tx, rx, baud),
@@ -15,14 +17,26 @@ IMUHandler::IMUHandler(PinName tx, PinName rx, PinName dir, int baud) :
         _buf_rec{},
         _dir(dir) {
     _communication.format(8, mbed::SerialBase::None, 1);
+    _data_imu.start_pitch = 200;
 }
+
 
 void IMUHandler::process() {
     _set_cmd();
     _transmit();
     _receive();
-//    _rec_parse();
 }
+
+
+void IMUHandler::_filtering_data() {
+    if (_data_imu.start_pitch == 200) {
+        _data_imu.start_pitch = asin(_data_imu.acc_y/9.81)*57.2958;
+    }
+    else {
+        _data_imu.abs_pitch = _data_imu.start_pitch + _data_imu.pitch;
+    }
+}
+
 
 void IMUHandler::_transmit() {
     _dir.write(1);
@@ -32,6 +46,7 @@ void IMUHandler::_transmit() {
     _tx_completed.wait_any(TX_COMPLETED_FLAG, TX_CALLBACK_TIMEOUT_ms);
     _tx_completed.clear();
 }
+
 
 void IMUHandler::_receive() {
     _communication.abort_read();
@@ -43,10 +58,12 @@ void IMUHandler::_receive() {
     _rx_completed.clear();
 }
 
+
 void IMUHandler::_tx_callback(int event) {
     _dir.write(0);
     _tx_completed.set(TX_COMPLETED_FLAG);
 }
+
 
 void IMUHandler::_rx_callback(int event) {
     _data_imu.roll = _three_bytes_to_double(_buf_rec[4], _buf_rec[5], _buf_rec[6]);
@@ -61,10 +78,10 @@ void IMUHandler::_rx_callback(int event) {
     _data_imu.gyro_y = _three_bytes_to_double(_buf_rec[25], _buf_rec[26], _buf_rec[27]);
     _data_imu.gyro_z = _three_bytes_to_double(_buf_rec[28], _buf_rec[29], _buf_rec[30]);
 
-    _data_imu.crc = _buf_rec[31];
-
+//    _data_imu.crc = _buf_rec[31];
     _rx_completed.set(RX_COMPLETED_FLAG);
 }
+
 
 const DataIMU &IMUHandler::get_data() {
     return _data_imu;
@@ -77,6 +94,13 @@ void IMUHandler::_set_cmd() {
     _buf_req[2] = 0x00;
     _buf_req[3] = 0x84;
     _buf_req[4] = 0xA3;
+//
+//    _buf_req[0] = 0x68;
+//    _buf_req[1] = 0x05;
+//    _buf_req[2] = 0x00;
+//    _buf_req[3] = 0x0C;
+//    _buf_req[4] = 0x06;
+//    _buf_req[5] = 0x17;
 }
 
 
@@ -91,6 +115,7 @@ const double IMUHandler::_three_bytes_to_double(const uint8_t sign, const uint8_
     }
     return number;
 }
+
 
 std::uint32_t IMUHandler::convert_to_dec(const uint8_t number) const {
     uint32_t dec_num = 0;

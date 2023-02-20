@@ -12,6 +12,7 @@ UDPServer::UDPServer(const char *mask, const char *gateway, uint16_t port, const
         _req{},
         _in_buf{}
 {
+    _timer.start();
 }
 
 
@@ -64,47 +65,6 @@ const Cmd &UDPServer::get_cmd() const {
 
 
 void UDPServer::_respond(const SocketAddress &addr) {
-    _resp.data.data_imu_first.cmd_1= _data_imu_first.cmd_1;
-    _resp.data.data_imu_first.cmd_2= _data_imu_first.cmd_2;
-    _resp.data.data_imu_first.cmd_3= _data_imu_first.cmd_3;
-    _resp.data.data_imu_first.cmd_4= _data_imu_first.cmd_4;
-
-    _resp.data.data_imu_first.sign_roll = _data_imu_first.sign_roll;
-    _resp.data.data_imu_first.angle_roll = _data_imu_first.angle_roll;
-    _resp.data.data_imu_first.minutes_roll = _data_imu_first.minutes_roll;
-
-    _resp.data.data_imu_first.sign_pitch = _data_imu_first.sign_pitch;
-    _resp.data.data_imu_first.angle_pitch = _data_imu_first.angle_pitch;
-    _resp.data.data_imu_first.minutes_pitch = _data_imu_first.minutes_pitch;
-
-    _resp.data.data_imu_first.sign_yaw = _data_imu_first.sign_yaw;
-    _resp.data.data_imu_first.angle_yaw = _data_imu_first.angle_yaw;
-    _resp.data.data_imu_first.minutes_yaw = _data_imu_first.minutes_yaw;
-
-    _resp.data.data_imu_first.sign_acc_x = _data_imu_first.sign_acc_x;
-    _resp.data.data_imu_first.whole_acc_x = _data_imu_first.whole_acc_x;
-    _resp.data.data_imu_first.fraction_acc_x = _data_imu_first.fraction_acc_x;
-
-    _resp.data.data_imu_first.sign_acc_y = _data_imu_first.sign_acc_y;
-    _resp.data.data_imu_first.whole_acc_y = _data_imu_first.whole_acc_y;
-    _resp.data.data_imu_first.fraction_acc_y = _data_imu_first.fraction_acc_y;
-
-    _resp.data.data_imu_first.sign_acc_z = _data_imu_first.sign_acc_z;
-    _resp.data.data_imu_first.whole_acc_z = _data_imu_first.whole_acc_z;
-    _resp.data.data_imu_first.fraction_acc_z = _data_imu_first.fraction_acc_z;
-
-    _resp.data.data_imu_first.sign_gyro_x = _data_imu_first.sign_gyro_x;
-    _resp.data.data_imu_first.angle_gyro_x = _data_imu_first.angle_gyro_x;
-    _resp.data.data_imu_first.minutes_gyro_x = _data_imu_first.minutes_gyro_x;
-
-    _resp.data.data_imu_first.sign_gyro_y = _data_imu_first.sign_gyro_y;
-    _resp.data.data_imu_first.angle_gyro_y = _data_imu_first.angle_gyro_y;
-    _resp.data.data_imu_first.minutes_gyro_y = _data_imu_first.minutes_gyro_y;
-
-    _resp.data.data_imu_first.sign_gyro_z = _data_imu_first.sign_gyro_z;
-    _resp.data.data_imu_first.angle_gyro_z = _data_imu_first.angle_gyro_z;
-    _resp.data.data_imu_first.minutes_gyro_z = _data_imu_first.minutes_gyro_z;
-
     _resp.data.data_imu_first.roll = _data_imu_first.roll;
     _resp.data.data_imu_first.pitch = _data_imu_first.pitch;
     _resp.data.data_imu_first.yaw = _data_imu_first.yaw;
@@ -117,7 +77,42 @@ void UDPServer::_respond(const SocketAddress &addr) {
     _resp.data.data_imu_first.gyro_y = _data_imu_first.gyro_y;
     _resp.data.data_imu_first.gyro_z = _data_imu_first.gyro_z;
 
-    _resp.data.data_imu_first.crc = _data.data_imu_first.crc;
+    _resp.data.data_imu_first.start_pitch = _data_imu_first.start_pitch;
+    _resp.data.data_imu_first.abs_pitch = _data_imu_first.abs_pitch;
+
+
+    _resp.data.data_imu_second.roll = _data_imu_second.roll;
+    _resp.data.data_imu_second.pitch = _data_imu_second.pitch;
+    _resp.data.data_imu_second.yaw = _data_imu_second.yaw;
+
+    _resp.data.data_imu_second.acc_x = _data_imu_second.acc_x;
+    _resp.data.data_imu_second.acc_y = _data_imu_second.acc_y;
+    _resp.data.data_imu_second.acc_z = _data_imu_second.acc_z;
+
+    _resp.data.data_imu_second.gyro_x = _data_imu_second.gyro_x;
+    _resp.data.data_imu_second.gyro_y = _data_imu_second.gyro_y;
+    _resp.data.data_imu_second.gyro_z = _data_imu_second.gyro_z;
+
+    _resp.data.data_imu_second.start_pitch = _data_imu_second.start_pitch;
+    _resp.data.data_imu_second.abs_pitch = _data_imu_second.abs_pitch;
+
+
+    _resp.data.data_imu_third.roll = _data_imu_third.roll;
+    _resp.data.data_imu_third.pitch = _data_imu_third.pitch;
+    _resp.data.data_imu_third.yaw = _data_imu_third.yaw;
+
+    _resp.data.data_imu_third.acc_x = _data_imu_third.acc_x;
+    _resp.data.data_imu_third.acc_y = _data_imu_third.acc_y;
+    _resp.data.data_imu_third.acc_z = _data_imu_third.acc_z;
+
+    _resp.data.data_imu_third.gyro_x = _data_imu_third.gyro_x;
+    _resp.data.data_imu_third.gyro_y = _data_imu_third.gyro_y;
+    _resp.data.data_imu_third.gyro_z = _data_imu_third.gyro_z;
+
+    _resp.data.data_imu_third.start_pitch = _data_imu_third.start_pitch;
+    _resp.data.data_imu_third.abs_pitch = _data_imu_third.abs_pitch;
+
+    _resp.time = chrono::milliseconds(_timer.elapsed_time().count());
 
     uint16_t crc_offset = sizeof(_resp) - sizeof(_resp.crc);
     memcpy(reinterpret_cast<void *>(_out_buf),
@@ -135,3 +130,10 @@ void UDPServer::set_data_imu_first(const DataIMU &data) {
     _data_imu_first = data;
 }
 
+void UDPServer::set_data_imu_second(const DataIMU &data) {
+    _data_imu_second = data;
+}
+
+void UDPServer::set_data_imu_third(const DataIMU &data) {
+    _data_imu_third = data;
+}

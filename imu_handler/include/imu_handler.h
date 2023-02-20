@@ -18,55 +18,46 @@ const uint8_t RX_CALLBACK_TIMEOUT_ms = 10;
 
 #pragma pack(push, 1)
 struct DataIMU {
-//    float roll;
-//    float pitch;
-//    float yaw;
-//    float ACC_X;
-//    float ACC_Y;
-//    float ACC_Z;
-//    float gyro_x;
-//    float gyro_y;
-//    float gyro_z;
-    uint8_t cmd_1;
-    uint8_t cmd_2;
-    uint8_t cmd_3;
-    uint8_t cmd_4;
-
-    uint8_t sign_roll;
-    uint8_t angle_roll;
-    uint8_t minutes_roll;
-
-    uint8_t sign_pitch;
-    uint8_t angle_pitch;
-    uint8_t minutes_pitch;
-
-    uint8_t sign_yaw;
-    uint8_t angle_yaw;
-    uint8_t minutes_yaw;
-
-    uint8_t sign_acc_x;
-    uint8_t whole_acc_x;
-    uint8_t fraction_acc_x;
-
-    uint8_t sign_acc_y;
-    uint8_t whole_acc_y;
-    uint8_t fraction_acc_y;
-
-    uint8_t sign_acc_z;
-    uint8_t whole_acc_z;
-    uint8_t fraction_acc_z;
-
-    uint8_t sign_gyro_x;
-    uint8_t angle_gyro_x;
-    uint8_t minutes_gyro_x;
-
-    uint8_t sign_gyro_y;
-    uint8_t angle_gyro_y;
-    uint8_t minutes_gyro_y;
-
-    uint8_t sign_gyro_z;
-    uint8_t angle_gyro_z;
-    uint8_t minutes_gyro_z;
+//    uint8_t cmd_1;
+//    uint8_t cmd_2;
+//    uint8_t cmd_3;
+//    uint8_t cmd_4;
+//
+//    uint8_t sign_roll;
+//    uint8_t angle_roll;
+//    uint8_t minutes_roll;
+//
+//    uint8_t sign_pitch;
+//    uint8_t angle_pitch;
+//    uint8_t minutes_pitch;
+//
+//    uint8_t sign_yaw;
+//    uint8_t angle_yaw;
+//    uint8_t minutes_yaw;
+//
+//    uint8_t sign_acc_x;
+//    uint8_t whole_acc_x;
+//    uint8_t fraction_acc_x;
+//
+//    uint8_t sign_acc_y;
+//    uint8_t whole_acc_y;
+//    uint8_t fraction_acc_y;
+//
+//    uint8_t sign_acc_z;
+//    uint8_t whole_acc_z;
+//    uint8_t fraction_acc_z;
+//
+//    uint8_t sign_gyro_x;
+//    uint8_t angle_gyro_x;
+//    uint8_t minutes_gyro_x;
+//
+//    uint8_t sign_gyro_y;
+//    uint8_t angle_gyro_y;
+//    uint8_t minutes_gyro_y;
+//
+//    uint8_t sign_gyro_z;
+//    uint8_t angle_gyro_z;
+//    uint8_t minutes_gyro_z;
 
     double roll;
     double pitch;
@@ -80,7 +71,9 @@ struct DataIMU {
     double gyro_y;
     double gyro_z;
 
-    uint8_t crc;
+    double start_pitch;
+    double abs_pitch;
+//    uint8_t crc;
 };
 #pragma pack(pop)
 
@@ -101,6 +94,7 @@ private:
     void _tx_callback(int event);
     void _receive();
     void _transmit();
+    void _filtering_data();
 
     RawSerial _communication;
     EventFlags _tx_completed;

@@ -12,7 +12,7 @@
 
 
 const uint16_t BUFFER_REQ = 4;
-const uint16_t BUFFER_RES = 200;
+const uint16_t BUFFER_RES = 300;
 
 
 enum class ECmd : uint8_t {
@@ -36,12 +36,15 @@ struct Request {
 #pragma pack(push, 1)
 struct Data {
     DataIMU data_imu_first;
+    DataIMU data_imu_second;
+    DataIMU data_imu_third;
 };
 #pragma pack(pop)
 
 #pragma pack(push, 1)
 struct Response {
     Data data;
+    Kernel::Clock::duration time;
     uint16_t crc;
 };
 #pragma pack(pop)
@@ -59,6 +62,8 @@ public:
     bool is_connected() const;
     void set_data(const Data &data);
     void set_data_imu_first(const DataIMU &data);
+    void set_data_imu_second(const DataIMU &data);
+    void set_data_imu_third(const DataIMU &data);
     const Cmd &get_cmd() const;
 
 private:
@@ -83,5 +88,9 @@ private:
     Cmd _cmd;
 
     DataIMU _data_imu_first;
+    DataIMU _data_imu_second;
+    DataIMU _data_imu_third;
+
+    Timer _timer;
 };
 
