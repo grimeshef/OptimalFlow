@@ -9,8 +9,8 @@
 const uint8_t BUF_SIZE_REQ = 6;
 const uint8_t BUF_SIZE_REC = 32;
 
-const uint16_t RX_COMPLETED_FLAG = 0x420;
-const uint16_t TX_COMPLETED_FLAG = 0x1488;
+const uint16_t RX_COMPLETED_FLAG = 0x340;
+const uint16_t TX_COMPLETED_FLAG = 0x341;
 
 const uint8_t TX_CALLBACK_TIMEOUT_ms = 10;
 const uint8_t RX_CALLBACK_TIMEOUT_ms = 10;
@@ -70,9 +70,6 @@ struct DataIMU {
     double gyro_x;
     double gyro_y;
     double gyro_z;
-
-    double start_pitch;
-    double abs_pitch;
 //    uint8_t crc;
 };
 #pragma pack(pop)
@@ -94,12 +91,10 @@ private:
     void _tx_callback(int event);
     void _receive();
     void _transmit();
-    void _filtering_data();
 
     RawSerial _communication;
     EventFlags _tx_completed;
     EventFlags _rx_completed;
-
 
     DigitalOut _dir;
     uint8_t _buf_req[BUF_SIZE_REQ];
@@ -107,6 +102,6 @@ private:
     DataIMU _data_imu;
 
     void _set_cmd();
-    const double _three_bytes_to_double(const uint8_t sign, const uint8_t whole, const uint8_t fraction) const;
+    double _three_bytes_to_double(const uint8_t sign, const uint8_t whole, const uint8_t fraction) const;
     std::uint32_t convert_to_dec(const uint8_t number) const;
 };

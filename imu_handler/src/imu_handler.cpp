@@ -3,7 +3,6 @@
 //
 
 #include "imu_handler.h"
-#include "math.h"
 
 RawSerial::RawSerial(PinName tx, PinName rx, int baud)
         :
@@ -17,7 +16,6 @@ IMUHandler::IMUHandler(PinName tx, PinName rx, PinName dir, int baud) :
         _buf_rec{},
         _dir(dir) {
     _communication.format(8, mbed::SerialBase::None, 1);
-    _data_imu.start_pitch = 200;
 }
 
 
@@ -25,16 +23,6 @@ void IMUHandler::process() {
     _set_cmd();
     _transmit();
     _receive();
-}
-
-
-void IMUHandler::_filtering_data() {
-    if (_data_imu.start_pitch == 200) {
-        _data_imu.start_pitch = asin(_data_imu.acc_y/9.81)*57.2958;
-    }
-    else {
-        _data_imu.abs_pitch = _data_imu.start_pitch + _data_imu.pitch;
-    }
 }
 
 
@@ -78,7 +66,6 @@ void IMUHandler::_rx_callback(int event) {
     _data_imu.gyro_y = _three_bytes_to_double(_buf_rec[25], _buf_rec[26], _buf_rec[27]);
     _data_imu.gyro_z = _three_bytes_to_double(_buf_rec[28], _buf_rec[29], _buf_rec[30]);
 
-//    _data_imu.crc = _buf_rec[31];
     _rx_completed.set(RX_COMPLETED_FLAG);
 }
 
@@ -104,7 +91,7 @@ void IMUHandler::_set_cmd() {
 }
 
 
-const double IMUHandler::_three_bytes_to_double(const uint8_t sign, const uint8_t whole, const uint8_t fraction) const {
+double IMUHandler::_three_bytes_to_double(const uint8_t sign, const uint8_t whole, const uint8_t fraction) const {
     double number = 0.0;
     switch (sign) {
         case 0x00: number = convert_to_dec(whole) + convert_to_dec(fraction) * 0.01; break;

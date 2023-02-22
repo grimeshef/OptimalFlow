@@ -77,10 +77,6 @@ void UDPServer::_respond(const SocketAddress &addr) {
     _resp.data.data_imu_first.gyro_y = _data_imu_first.gyro_y;
     _resp.data.data_imu_first.gyro_z = _data_imu_first.gyro_z;
 
-    _resp.data.data_imu_first.start_pitch = _data_imu_first.start_pitch;
-    _resp.data.data_imu_first.abs_pitch = _data_imu_first.abs_pitch;
-
-
     _resp.data.data_imu_second.roll = _data_imu_second.roll;
     _resp.data.data_imu_second.pitch = _data_imu_second.pitch;
     _resp.data.data_imu_second.yaw = _data_imu_second.yaw;
@@ -93,10 +89,6 @@ void UDPServer::_respond(const SocketAddress &addr) {
     _resp.data.data_imu_second.gyro_y = _data_imu_second.gyro_y;
     _resp.data.data_imu_second.gyro_z = _data_imu_second.gyro_z;
 
-    _resp.data.data_imu_second.start_pitch = _data_imu_second.start_pitch;
-    _resp.data.data_imu_second.abs_pitch = _data_imu_second.abs_pitch;
-
-
     _resp.data.data_imu_third.roll = _data_imu_third.roll;
     _resp.data.data_imu_third.pitch = _data_imu_third.pitch;
     _resp.data.data_imu_third.yaw = _data_imu_third.yaw;
@@ -108,9 +100,6 @@ void UDPServer::_respond(const SocketAddress &addr) {
     _resp.data.data_imu_third.gyro_x = _data_imu_third.gyro_x;
     _resp.data.data_imu_third.gyro_y = _data_imu_third.gyro_y;
     _resp.data.data_imu_third.gyro_z = _data_imu_third.gyro_z;
-
-    _resp.data.data_imu_third.start_pitch = _data_imu_third.start_pitch;
-    _resp.data.data_imu_third.abs_pitch = _data_imu_third.abs_pitch;
 
     _resp.time = chrono::milliseconds(_timer.elapsed_time().count());
 
