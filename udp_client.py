@@ -56,12 +56,17 @@ class DataReceive:
     third_gyro_y = np.double
     third_gyro_z = np.double
 
+    handle_roll_with_param = np.double
+    handle_pitch_with_param = np.double
+    pitch_arrow_handle = np.double
+
 
 udp_socket = socket(AF_INET, SOCK_DGRAM)
 udp_socket.settimeout(1)
 data = b'1'
 ping = 10
-param = 3
+roll_param = 3.1
+pitch_param = 3.1
 data_rec = DataReceive
 crc_req = Crc16CcittFalse.calc(data)
 data = data + pack('<H', crc_req)
@@ -118,6 +123,9 @@ try:
 
                     data_rec.time = unpack('<Q', bytes_rec[216:224])[0]/1000000
 
+                    data_rec.handle_roll_with_param = data_rec.second_roll + roll_param
+                    data_rec.handle_pitch_with_param = data_rec.second_pitch + pitch_param
+                    data_rec.pitch_arrow_handle = -data_rec.handle_pitch_with_param + data_rec.third_pitch
                     # for key, value in data_rec.__dict__.items():
                     #     if not isinstance(types.FunctionType, types.MethodType):
                     #         print(key, value)
@@ -132,6 +140,10 @@ try:
                     print("third_roll", data_rec.third_roll)
                     print("third_pitch", data_rec.third_pitch)
                     print("third_yaw", data_rec.third_yaw)
+                    print("")
+                    print("handle_roll_with_param", data_rec.handle_roll_with_param)
+                    print("handle_pitch_with_param", data_rec.handle_pitch_with_param)
+                    print("pitch_arrow_handle", data_rec.pitch_arrow_handle)
                     print("")
                     print("time", data_rec.time)
         except TimeoutError:
