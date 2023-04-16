@@ -1,21 +1,16 @@
-import socket
+import socket, select
+from threading import Timer
 import time
-import types
 
 import numpy as np
 import logging
 
 from crccheck.crc import Crc16CcittFalse
 from struct import *
-from socket import *
 
 host = '192.168.2.2'
 port = 5000
 addr = (host, port)
-
-
-def rec_func():
-    pass
 
 
 class DataReceive:
@@ -61,7 +56,7 @@ class DataReceive:
     pitch_arrow_handle = np.double
 
 
-udp_socket = socket(AF_INET, SOCK_DGRAM)
+udp_socket = socket.socket(family=socket.AF_INET, type=socket.SOCK_DGRAM)
 udp_socket.settimeout(1)
 data = b'1'
 ping = 10
@@ -70,86 +65,107 @@ pitch_param = 3.1
 data_rec = DataReceive
 crc_req = Crc16CcittFalse.calc(data)
 data = data + pack('<H', crc_req)
+
+
+def send_pkg():
+    udp_socket.sendto(data, addr)
+    rec_pkg()
+
+
+def rec_pkg():
+    ready = select.select([udp_socket], [], [], 1.0 / 40)
+    if ready[0]:
+        receive = udp_socket.recvfrom(300)
+        bytes_rec = receive[0]
+        crc_rec_data = Crc16CcittFalse.calc(bytes_rec[0:-2])
+        crc_rec_stm = unpack('<H', bytes_rec[-2:])[0]
+        if crc_rec_data == crc_rec_stm:
+            parser(bytes_rec)
+            print_data()
+
+
+def safe_logs():
+    logging.basicConfig(level=logging.INFO, filename="py_log.log", filemode="w")
+    logging.info(f'{data_rec.__dict__.items()}')
+
+
+def parser(bytes_rec):
+    data_rec.first_roll = unpack('<d', bytes_rec[0:8])[0]
+    data_rec.first_pitch = unpack('<d', bytes_rec[8:16])[0]
+    data_rec.first_yaw = unpack('<d', bytes_rec[16:24])[0]
+
+    data_rec.first_acc_x = unpack('<d', bytes_rec[24:32])[0]
+    data_rec.first_acc_y = unpack('<d', bytes_rec[32:40])[0]
+    data_rec.first_acc_z = unpack('<d', bytes_rec[40:48])[0]
+
+    data_rec.first_gyro_x = unpack('<d', bytes_rec[48:56])[0]
+    data_rec.first_gyro_y = unpack('<d', bytes_rec[56:64])[0]
+    data_rec.first_gyro_z = unpack('<d', bytes_rec[64:72])[0]
+
+    data_rec.second_roll = unpack('<d', bytes_rec[72:80])[0]
+    data_rec.second_pitch = unpack('<d', bytes_rec[80:88])[0]
+    data_rec.second_yaw = unpack('<d', bytes_rec[88:96])[0]
+
+    data_rec.second_acc_x = unpack('<d', bytes_rec[96:104])[0]
+    data_rec.second_acc_y = unpack('<d', bytes_rec[104:112])[0]
+    data_rec.second_acc_z = unpack('<d', bytes_rec[112:120])[0]
+
+    data_rec.second_gyro_x = unpack('<d', bytes_rec[120:128])[0]
+    data_rec.second_gyro_y = unpack('<d', bytes_rec[128:136])[0]
+    data_rec.second_gyro_z = unpack('<d', bytes_rec[136:144])[0]
+
+    data_rec.third_roll = unpack('<d', bytes_rec[144:152])[0]
+    data_rec.third_pitch = unpack('<d', bytes_rec[152:160])[0]
+    data_rec.third_yaw = unpack('<d', bytes_rec[160:168])[0]
+
+    data_rec.third_acc_x = unpack('<d', bytes_rec[168:176])[0]
+    data_rec.third_acc_y = unpack('<d', bytes_rec[176:184])[0]
+    data_rec.third_acc_z = unpack('<d', bytes_rec[184:192])[0]
+
+    data_rec.third_gyro_x = unpack('<d', bytes_rec[192:200])[0]
+    data_rec.third_gyro_y = unpack('<d', bytes_rec[200:208])[0]
+    data_rec.third_gyro_z = unpack('<d', bytes_rec[208:216])[0]
+
+    data_rec.time = unpack('<Q', bytes_rec[216:224])[0]/1000000
+
+    data_rec.handle_roll_with_param = data_rec.second_roll + roll_param
+    data_rec.handle_pitch_with_param = data_rec.second_pitch + pitch_param
+    data_rec.pitch_arrow_handle = -data_rec.handle_pitch_with_param + data_rec.third_pitch
+
+
+def print_data():
+    print("first_roll", data_rec.first_roll)
+    print("first_pitch", data_rec.first_pitch)
+    print("first_yaw", data_rec.first_yaw)
+    print("")
+    print("second_roll", data_rec.second_roll)
+    print("second_pitch", data_rec.second_pitch)
+    print("second_yaw", data_rec.second_yaw)
+    print("")
+    print("third_roll", data_rec.third_roll)
+    print("third_pitch", data_rec.third_pitch)
+    print("third_yaw", data_rec.third_yaw)
+    print("")
+    print("handle_roll_with_param", data_rec.handle_roll_with_param)
+    print("handle_pitch_with_param", data_rec.handle_pitch_with_param)
+    print("pitch_arrow_handle", data_rec.pitch_arrow_handle)
+    print("")
+    print("time", data_rec.time)
+    print("")
+
+
+class RepeatTimer(Timer):
+    def run(self):
+        while not self.finished.wait(self.interval):
+            self.function(*self.args, **self.kwargs)
+
+
+timer_send = RepeatTimer(1.0/40, send_pkg)
+timer_send.run()
+
+
 try:
     while True:
-        try:
-            print("Try to connect")
-            udp_socket.connect((host, port))
-        except OSError:
-            print("Communication problem. Check main PCB and Ethernet cable")
-        udp_socket.sendto(data, addr)
-        try:
-            receive = udp_socket.recvfrom(300)
-            if receive[0]:
-                bytes_rec = receive[0]
-                crc_rec_data = Crc16CcittFalse.calc(bytes_rec[0:-2])
-                crc_rec_stm = unpack('<H', bytes_rec[-2:])[0]
-                if crc_rec_data == crc_rec_stm:
-                    data_rec.first_roll = unpack('<d', bytes_rec[0:8])[0]
-                    data_rec.first_pitch = unpack('<d', bytes_rec[8:16])[0]
-                    data_rec.first_yaw = unpack('<d', bytes_rec[16:24])[0]
-
-                    data_rec.first_acc_x = unpack('<d', bytes_rec[24:32])[0]
-                    data_rec.first_acc_y = unpack('<d', bytes_rec[32:40])[0]
-                    data_rec.first_acc_z = unpack('<d', bytes_rec[40:48])[0]
-
-                    data_rec.first_gyro_x = unpack('<d', bytes_rec[48:56])[0]
-                    data_rec.first_gyro_y = unpack('<d', bytes_rec[56:64])[0]
-                    data_rec.first_gyro_z = unpack('<d', bytes_rec[64:72])[0]
-
-                    data_rec.second_roll = unpack('<d', bytes_rec[72:80])[0]
-                    data_rec.second_pitch = unpack('<d', bytes_rec[80:88])[0]
-                    data_rec.second_yaw = unpack('<d', bytes_rec[88:96])[0]
-
-                    data_rec.second_acc_x = unpack('<d', bytes_rec[96:104])[0]
-                    data_rec.second_acc_y = unpack('<d', bytes_rec[104:112])[0]
-                    data_rec.second_acc_z = unpack('<d', bytes_rec[112:120])[0]
-
-                    data_rec.second_gyro_x = unpack('<d', bytes_rec[120:128])[0]
-                    data_rec.second_gyro_y = unpack('<d', bytes_rec[128:136])[0]
-                    data_rec.second_gyro_z = unpack('<d', bytes_rec[136:144])[0]
-
-                    data_rec.third_roll = unpack('<d', bytes_rec[144:152])[0]
-                    data_rec.third_pitch = unpack('<d', bytes_rec[152:160])[0]
-                    data_rec.third_yaw = unpack('<d', bytes_rec[160:168])[0]
-
-                    data_rec.third_acc_x = unpack('<d', bytes_rec[168:176])[0]
-                    data_rec.third_acc_y = unpack('<d', bytes_rec[176:184])[0]
-                    data_rec.third_acc_z = unpack('<d', bytes_rec[184:192])[0]
-
-                    data_rec.third_gyro_x = unpack('<d', bytes_rec[192:200])[0]
-                    data_rec.third_gyro_y = unpack('<d', bytes_rec[200:208])[0]
-                    data_rec.third_gyro_z = unpack('<d', bytes_rec[208:216])[0]
-
-                    data_rec.time = unpack('<Q', bytes_rec[216:224])[0]/1000000
-
-                    data_rec.handle_roll_with_param = data_rec.second_roll + roll_param
-                    data_rec.handle_pitch_with_param = data_rec.second_pitch + pitch_param
-                    data_rec.pitch_arrow_handle = -data_rec.handle_pitch_with_param + data_rec.third_pitch
-                    # for key, value in data_rec.__dict__.items():
-                    #     if not isinstance(types.FunctionType, types.MethodType):
-                    #         print(key, value)
-                    print("first_roll", data_rec.first_roll)
-                    print("first_pitch", data_rec.first_pitch)
-                    print("first_yaw", data_rec.first_yaw)
-                    print("")
-                    print("second_roll", data_rec.second_roll)
-                    print("second_pitch", data_rec.second_pitch)
-                    print("second_yaw", data_rec.second_yaw)
-                    print("")
-                    print("third_roll", data_rec.third_roll)
-                    print("third_pitch", data_rec.third_pitch)
-                    print("third_yaw", data_rec.third_yaw)
-                    print("")
-                    print("handle_roll_with_param", data_rec.handle_roll_with_param)
-                    print("handle_pitch_with_param", data_rec.handle_pitch_with_param)
-                    print("pitch_arrow_handle", data_rec.pitch_arrow_handle)
-                    print("")
-                    print("time", data_rec.time)
-        except TimeoutError:
-            pass
-        logging.basicConfig(level=logging.INFO, filename="py_log.log", filemode="w")
-        logging.info(f'{data_rec.__dict__.items()}')
-        time.sleep(0.025)
+        time.sleep(0.25)
 except KeyboardInterrupt:
     udp_socket.close()

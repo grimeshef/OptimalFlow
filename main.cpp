@@ -11,8 +11,8 @@ Mutex udp_watchdog;
 int watchdog_udp_connection_timer = 0;
 
 
-Thread blink;
-Thread udp_communication_thread{osPriorityBelowNormal, 4096};
+Thread blink{osPriorityBelowNormal, 256};
+Thread udp_communication_thread{osPriorityNormal, 4096};
 Thread logic_thread;
 Thread first_imu_handler_thread;
 Thread second_imu_handler_thread;
@@ -48,7 +48,6 @@ Mail<DataIMU, 1> third_imu_data_box;
     DataIMU *data_imu_third = nullptr;
 
     while(true) {
-        auto start_time = Kernel::Clock::now().time_since_epoch();
 
         if (!server.is_connected()) {
             server.connect();
@@ -89,9 +88,7 @@ Mail<DataIMU, 1> third_imu_data_box;
     //        *cmd = server.get_cmd();
    //         cmd_box.put(cmd);
     //    }
-
-        auto delta_time = start_time - Kernel::Clock::now().time_since_epoch();
-        ThisThread::sleep_for(chrono::milliseconds(SYSTEM_TIMEOUT - delta_time));
+        ThisThread::sleep_for(chrono::milliseconds(SYSTEM_TIMEOUT));
     }
 }
 
