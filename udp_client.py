@@ -82,7 +82,8 @@ def rec_pkg():
         if crc_rec_data == crc_rec_stm:
             parser(bytes_rec)
             print_data()
-
+    else:
+        print("Lost connection!")
 
 def safe_logs():
     logging.basicConfig(level=logging.INFO, filename="py_log.log", filemode="w")
