@@ -5,25 +5,19 @@
 #include "mbed.h"
 #include "udp_server.h"
 #include "imu_handler.h"
+#include "linear_encoder_handler.h"
 
 const auto SYSTEM_TIMEOUT = 25ms;
 Mutex udp_watchdog;
 int watchdog_udp_connection_timer = 0;
 
 
-Thread blink;
-Thread udp_communication_thread{osPriorityBelowNormal, 4096};
+Thread blink{osPriorityBelowNormal, 256};;
+Thread udp_communication_thread{osPriorityNormal, 4096};
 Thread logic_thread;
-Thread first_imu_handler_thread;
-Thread second_imu_handler_thread;
-Thread third_imu_handler_thread;
 
 Mail<Cmd, 1> cmd_box;
-Mail<Data, 1> data_box;
-
-Mail<DataIMU, 1> first_imu_data_box;
-Mail<DataIMU, 1> second_imu_data_box;
-Mail<DataIMU, 1> third_imu_data_box;
+Mail<double, 1> data_box;
 
 
 [[noreturn]] void blink_loop(){
@@ -41,41 +35,18 @@ Mail<DataIMU, 1> third_imu_data_box;
 [[noreturn]] void udp_communication_loop() {
     UDPServer server;
     Cmd *cmd = nullptr;
-    Data *data = nullptr;
-
-    DataIMU *data_imu_first = nullptr;
-    DataIMU *data_imu_second = nullptr;
-    DataIMU *data_imu_third = nullptr;
+    double *data = nullptr;
 
     while(true) {
-        auto start_time = Kernel::Clock::now().time_since_epoch();
 
         if (!server.is_connected()) {
             server.connect();
         }
 
-//        data = data_box.try_get();
-//        if (data != nullptr) {
-//            server.set_data(*data);
-//            data_box.free(data);
-//        }
-
-        data_imu_first = first_imu_data_box.try_get();
-        if (data_imu_first != nullptr) {
-            server.set_data_imu_first(*data_imu_first);
-            first_imu_data_box.free(data_imu_first);
-        }
-
-        data_imu_second = second_imu_data_box.try_get();
-        if (data_imu_second != nullptr) {
-            server.set_data_imu_second(*data_imu_second);
-            second_imu_data_box.free(data_imu_second);
-        }
-
-        data_imu_third = third_imu_data_box.try_get();
-        if (data_imu_third != nullptr) {
-            server.set_data_imu_third(*data_imu_third);
-            third_imu_data_box.free(data_imu_third);
+        data = data_box.try_get();
+        if (data != nullptr) {
+            server.set_data_lin_enc(*data);
+            data_box.free(data);
         }
 
         if (server.process_request()) {
@@ -84,83 +55,28 @@ Mail<DataIMU, 1> third_imu_data_box;
             udp_watchdog.unlock();
         }
 
-    //    cmd = cmd_box.try_alloc();
-    //    if (cmd != nullptr) {
-    //        *cmd = server.get_cmd();
-   //         cmd_box.put(cmd);
-    //    }
-
-        auto delta_time = start_time - Kernel::Clock::now().time_since_epoch();
-        ThisThread::sleep_for(chrono::milliseconds(SYSTEM_TIMEOUT - delta_time));
-    }
-}
-
-
-[[noreturn]] void first_imu_handler_loop() {
-
-    IMUHandler imu(PA_9, PA_10, PA_8);
-    DataIMU *data = nullptr;
-    while (true) {
-        auto start_time = Kernel::Clock::now().time_since_epoch();
-
-        imu.process();
-            data = first_imu_data_box.try_alloc();
-            if (data != nullptr) {
-                *data = imu.get_data();
-                first_imu_data_box.put(data);
-            }
-        auto delta_time = start_time - Kernel::Clock::now().time_since_epoch();;
-        ThisThread::sleep_for(chrono::milliseconds(SYSTEM_TIMEOUT - delta_time));
-    }
-}
-
-
-[[noreturn]] void second_imu_handler_loop() {
-
-    IMUHandler imu(PC_10_ALT0, PC_11_ALT0, PA_15);
-    DataIMU *data = nullptr;
-    while (true) {
-        auto start_time = Kernel::Clock::now().time_since_epoch();
-
-        imu.process();
-        data = second_imu_data_box.try_alloc();
-        if (data != nullptr) {
-            *data = imu.get_data();
-            second_imu_data_box.put(data);
-        }
-        auto delta_time = start_time - Kernel::Clock::now().time_since_epoch();;
-        ThisThread::sleep_for(chrono::milliseconds(SYSTEM_TIMEOUT - delta_time));
-    }
-}
-
-
-[[noreturn]] void third_imu_handler_loop() {
-
-    IMUHandler imu(PE_1, PE_0, PB_9);
-    DataIMU *data = nullptr;
-    while (true) {
-        auto start_time = Kernel::Clock::now().time_since_epoch();
-
-        imu.process();
-        data = third_imu_data_box.try_alloc();
-        if (data != nullptr) {
-            *data = imu.get_data();
-            third_imu_data_box.put(data);
-        }
-        auto delta_time = start_time - Kernel::Clock::now().time_since_epoch();;
-        ThisThread::sleep_for(chrono::milliseconds(SYSTEM_TIMEOUT - delta_time));
+        ThisThread::sleep_for(chrono::milliseconds(SYSTEM_TIMEOUT));
     }
 }
 
 
 [[noreturn]] void logic_loop() {
 
-    DataIMU *data_imu = nullptr;
-
+    LinEnc lin_enc(PC_11, PE_0, PA_10);
+    double *data = nullptr;
+    DigitalOut dir1(PA_15, 0);
+    DigitalOut dir2(PB_7, 0);
+    DigitalOut dir3(PB_9, 0);
     while (true) {
         auto start_time = Kernel::Clock::now().time_since_epoch();
-
-
+        dir1.write(0);
+        dir2.write(0);
+        dir3.write(0);
+        data = data_box.try_alloc();
+        if (data != nullptr) {
+            *data = lin_enc.get_data();
+             data_box.put(data);
+        }
         auto delta_time = start_time - Kernel::Clock::now().time_since_epoch();;
         ThisThread::sleep_for(chrono::milliseconds(SYSTEM_TIMEOUT - delta_time));
     }
@@ -172,9 +88,6 @@ int main()
     blink.start(callback(blink_loop));
     udp_communication_thread.start(callback(udp_communication_loop));
     logic_thread.start(callback(logic_loop));
-    first_imu_handler_thread.start(callback(first_imu_handler_loop));
-    second_imu_handler_thread.start(callback(second_imu_handler_loop));
-    third_imu_handler_thread.start(callback(third_imu_handler_loop));
 
     return 0;
 }

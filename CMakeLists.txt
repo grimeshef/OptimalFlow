@@ -14,21 +14,26 @@ project(${APP_TARGET})
 add_subdirectory(${MBED_PATH})
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/ethernet_communication)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/imu_handler)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/linear_encoder_handler)
 
 add_executable(${APP_TARGET}
     main.cpp
     ethernet_communication/src/crc.cpp
     ethernet_communication/src/udp_server.cpp
-    imu_handler/src/imu_handler.cpp)
+    imu_handler/src/imu_handler.cpp
+    linear_encoder_handler/src/linear_encoder_handler.cpp
+    linear_encoder_handler/src/QEI.cpp)
 
 target_include_directories(${APP_TARGET} PUBLIC
         ethernet_communication/include
-        imu_handler/include)
+        imu_handler/include
+        linear_encoder_handler/include)
 
 target_link_libraries(${APP_TARGET} PUBLIC
         mbed-os
         communication
         imu_handler
+        linear_encoder_handler
     )
 
 mbed_set_post_build(${APP_TARGET})

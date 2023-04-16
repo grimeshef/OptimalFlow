@@ -35,9 +35,7 @@ struct Request {
 
 #pragma pack(push, 1)
 struct Data {
-    DataIMU data_imu_first;
-    DataIMU data_imu_second;
-    DataIMU data_imu_third;
+    double lin_enc;
 };
 #pragma pack(pop)
 
@@ -61,9 +59,7 @@ public:
     void connect();
     bool is_connected() const;
     void set_data(const Data &data);
-    void set_data_imu_first(const DataIMU &data);
-    void set_data_imu_second(const DataIMU &data);
-    void set_data_imu_third(const DataIMU &data);
+    void set_data_lin_enc(const double &data);
     const Cmd &get_cmd() const;
 
 private:
@@ -87,9 +83,7 @@ private:
     Data _data;
     Cmd _cmd;
 
-    DataIMU _data_imu_first;
-    DataIMU _data_imu_second;
-    DataIMU _data_imu_third;
+    double _lin_enc;
 
     Timer _timer;
 };

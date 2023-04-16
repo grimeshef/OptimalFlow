@@ -65,41 +65,7 @@ const Cmd &UDPServer::get_cmd() const {
 
 
 void UDPServer::_respond(const SocketAddress &addr) {
-    _resp.data.data_imu_first.roll = _data_imu_first.roll;
-    _resp.data.data_imu_first.pitch = _data_imu_first.pitch;
-    _resp.data.data_imu_first.yaw = _data_imu_first.yaw;
-
-    _resp.data.data_imu_first.acc_x = _data_imu_first.acc_x;
-    _resp.data.data_imu_first.acc_y = _data_imu_first.acc_y;
-    _resp.data.data_imu_first.acc_z = _data_imu_first.acc_z;
-
-    _resp.data.data_imu_first.gyro_x = _data_imu_first.gyro_x;
-    _resp.data.data_imu_first.gyro_y = _data_imu_first.gyro_y;
-    _resp.data.data_imu_first.gyro_z = _data_imu_first.gyro_z;
-
-    _resp.data.data_imu_second.roll = _data_imu_second.roll;
-    _resp.data.data_imu_second.pitch = _data_imu_second.pitch;
-    _resp.data.data_imu_second.yaw = _data_imu_second.yaw;
-
-    _resp.data.data_imu_second.acc_x = _data_imu_second.acc_x;
-    _resp.data.data_imu_second.acc_y = _data_imu_second.acc_y;
-    _resp.data.data_imu_second.acc_z = _data_imu_second.acc_z;
-
-    _resp.data.data_imu_second.gyro_x = _data_imu_second.gyro_x;
-    _resp.data.data_imu_second.gyro_y = _data_imu_second.gyro_y;
-    _resp.data.data_imu_second.gyro_z = _data_imu_second.gyro_z;
-
-    _resp.data.data_imu_third.roll = _data_imu_third.roll;
-    _resp.data.data_imu_third.pitch = _data_imu_third.pitch;
-    _resp.data.data_imu_third.yaw = _data_imu_third.yaw;
-
-    _resp.data.data_imu_third.acc_x = _data_imu_third.acc_x;
-    _resp.data.data_imu_third.acc_y = _data_imu_third.acc_y;
-    _resp.data.data_imu_third.acc_z = _data_imu_third.acc_z;
-
-    _resp.data.data_imu_third.gyro_x = _data_imu_third.gyro_x;
-    _resp.data.data_imu_third.gyro_y = _data_imu_third.gyro_y;
-    _resp.data.data_imu_third.gyro_z = _data_imu_third.gyro_z;
+    _resp.data.lin_enc = _lin_enc;
 
     _resp.time = chrono::milliseconds(_timer.elapsed_time().count());
 
@@ -115,14 +81,6 @@ void UDPServer::_respond(const SocketAddress &addr) {
     _udp_socket.sendto(addr, _out_buf, sizeof(Response));
 }
 
-void UDPServer::set_data_imu_first(const DataIMU &data) {
-    _data_imu_first = data;
-}
-
-void UDPServer::set_data_imu_second(const DataIMU &data) {
-    _data_imu_second = data;
-}
-
-void UDPServer::set_data_imu_third(const DataIMU &data) {
-    _data_imu_third = data;
+void UDPServer::set_data_lin_enc(const double &data) {
+    _lin_enc = data;
 }
