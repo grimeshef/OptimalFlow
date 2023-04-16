@@ -154,18 +154,8 @@ def print_data():
     print("")
 
 
-class RepeatTimer(Timer):
-    def run(self):
-        while not self.finished.wait(self.interval):
-            self.function(*self.args, **self.kwargs)
-
-
-timer_send = RepeatTimer(1.0/40, send_pkg)
-timer_send.run()
-
-
 try:
     while True:
-        time.sleep(0.25)
+        send_pkg()
 except KeyboardInterrupt:
     udp_socket.close()
