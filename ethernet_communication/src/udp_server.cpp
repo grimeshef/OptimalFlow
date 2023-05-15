@@ -65,6 +65,7 @@ const Cmd &UDPServer::get_cmd() const {
 
 
 void UDPServer::_respond(const SocketAddress &addr) {
+    _resp.time = chrono::milliseconds(_timer.elapsed_time().count());
     _resp.data.data_imu_first.roll = _data_imu_first.roll;
     _resp.data.data_imu_first.pitch = _data_imu_first.pitch;
     _resp.data.data_imu_first.yaw = _data_imu_first.yaw;
@@ -100,8 +101,6 @@ void UDPServer::_respond(const SocketAddress &addr) {
     _resp.data.data_imu_third.gyro_x = _data_imu_third.gyro_x;
     _resp.data.data_imu_third.gyro_y = _data_imu_third.gyro_y;
     _resp.data.data_imu_third.gyro_z = _data_imu_third.gyro_z;
-
-    _resp.time = chrono::milliseconds(_timer.elapsed_time().count());
 
     uint16_t crc_offset = sizeof(_resp) - sizeof(_resp.crc);
     memcpy(reinterpret_cast<void *>(_out_buf),

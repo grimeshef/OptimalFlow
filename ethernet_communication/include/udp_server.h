@@ -43,8 +43,8 @@ struct Data {
 
 #pragma pack(push, 1)
 struct Response {
-    Data data;
     Kernel::Clock::duration time;
+    Data data;
     uint16_t crc;
 };
 #pragma pack(pop)

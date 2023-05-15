@@ -65,7 +65,7 @@ pitch_param = 3.1
 data_rec = DataReceive
 crc_req = Crc16CcittFalse.calc(data)
 data = data + pack('<H', crc_req)
-
+f = open('thread_bytes.bin', 'wb')
 
 def send_pkg():
     udp_socket.sendto(data, addr)
@@ -82,52 +82,55 @@ def rec_pkg():
         if crc_rec_data == crc_rec_stm:
             parser(bytes_rec)
             print_data()
+            safe_logs(bytes_rec)
     else:
         print("Lost connection!")
 
-def safe_logs():
+
+def safe_logs(bytes_thread):
+    f.write(bytes_thread[0:226])
     logging.basicConfig(level=logging.INFO, filename="py_log.log", filemode="w")
     logging.info(f'{data_rec.__dict__.items()}')
 
 
 def parser(bytes_rec):
-    data_rec.first_roll = unpack('<d', bytes_rec[0:8])[0]
-    data_rec.first_pitch = unpack('<d', bytes_rec[8:16])[0]
-    data_rec.first_yaw = unpack('<d', bytes_rec[16:24])[0]
+    data_rec.time = unpack('<Q', bytes_rec[0:8])[0]/1000000
 
-    data_rec.first_acc_x = unpack('<d', bytes_rec[24:32])[0]
-    data_rec.first_acc_y = unpack('<d', bytes_rec[32:40])[0]
-    data_rec.first_acc_z = unpack('<d', bytes_rec[40:48])[0]
+    data_rec.first_roll = unpack('<d', bytes_rec[8:16])[0]
+    data_rec.first_pitch = unpack('<d', bytes_rec[16:24])[0]
+    data_rec.first_yaw = unpack('<d', bytes_rec[24:32])[0]
 
-    data_rec.first_gyro_x = unpack('<d', bytes_rec[48:56])[0]
-    data_rec.first_gyro_y = unpack('<d', bytes_rec[56:64])[0]
-    data_rec.first_gyro_z = unpack('<d', bytes_rec[64:72])[0]
+    data_rec.first_acc_x = unpack('<d', bytes_rec[32:40])[0]
+    data_rec.first_acc_y = unpack('<d', bytes_rec[40:48])[0]
+    data_rec.first_acc_z = unpack('<d', bytes_rec[48:56])[0]
 
-    data_rec.second_roll = unpack('<d', bytes_rec[72:80])[0]
-    data_rec.second_pitch = unpack('<d', bytes_rec[80:88])[0]
-    data_rec.second_yaw = unpack('<d', bytes_rec[88:96])[0]
+    data_rec.first_gyro_x = unpack('<d', bytes_rec[56:64])[0]
+    data_rec.first_gyro_y = unpack('<d', bytes_rec[64:72])[0]
+    data_rec.first_gyro_z = unpack('<d', bytes_rec[72:80])[0]
 
-    data_rec.second_acc_x = unpack('<d', bytes_rec[96:104])[0]
-    data_rec.second_acc_y = unpack('<d', bytes_rec[104:112])[0]
-    data_rec.second_acc_z = unpack('<d', bytes_rec[112:120])[0]
+    data_rec.second_roll = unpack('<d', bytes_rec[80:88])[0]
+    data_rec.second_pitch = unpack('<d', bytes_rec[88:96])[0]
+    data_rec.second_yaw = unpack('<d', bytes_rec[96:104])[0]
 
-    data_rec.second_gyro_x = unpack('<d', bytes_rec[120:128])[0]
-    data_rec.second_gyro_y = unpack('<d', bytes_rec[128:136])[0]
-    data_rec.second_gyro_z = unpack('<d', bytes_rec[136:144])[0]
+    data_rec.second_acc_x = unpack('<d', bytes_rec[104:112])[0]
+    data_rec.second_acc_y = unpack('<d', bytes_rec[112:120])[0]
+    data_rec.second_acc_z = unpack('<d', bytes_rec[120:128])[0]
 
-    data_rec.third_roll = unpack('<d', bytes_rec[144:152])[0]
-    data_rec.third_pitch = unpack('<d', bytes_rec[152:160])[0]
-    data_rec.third_yaw = unpack('<d', bytes_rec[160:168])[0]
+    data_rec.second_gyro_x = unpack('<d', bytes_rec[128:136])[0]
+    data_rec.second_gyro_y = unpack('<d', bytes_rec[136:144])[0]
+    data_rec.second_gyro_z = unpack('<d', bytes_rec[144:152])[0]
 
-    data_rec.third_acc_x = unpack('<d', bytes_rec[168:176])[0]
-    data_rec.third_acc_y = unpack('<d', bytes_rec[176:184])[0]
-    data_rec.third_acc_z = unpack('<d', bytes_rec[184:192])[0]
+    data_rec.third_roll = unpack('<d', bytes_rec[152:160])[0]
+    data_rec.third_pitch = unpack('<d', bytes_rec[160:168])[0]
+    data_rec.third_yaw = unpack('<d', bytes_rec[168:176])[0]
 
-    data_rec.third_gyro_x = unpack('<d', bytes_rec[192:200])[0]
-    data_rec.third_gyro_y = unpack('<d', bytes_rec[200:208])[0]
-    data_rec.third_gyro_z = unpack('<d', bytes_rec[208:216])[0]
+    data_rec.third_acc_x = unpack('<d', bytes_rec[176:184])[0]
+    data_rec.third_acc_y = unpack('<d', bytes_rec[184:192])[0]
+    data_rec.third_acc_z = unpack('<d', bytes_rec[192:200])[0]
 
-    data_rec.time = unpack('<Q', bytes_rec[216:224])[0]/1000000
+    data_rec.third_gyro_x = unpack('<d', bytes_rec[200:208])[0]
+    data_rec.third_gyro_y = unpack('<d', bytes_rec[208:216])[0]
+    data_rec.third_gyro_z = unpack('<d', bytes_rec[216:224])[0]
 
     data_rec.handle_roll_with_param = data_rec.second_roll + roll_param
     data_rec.handle_pitch_with_param = data_rec.second_pitch + pitch_param
@@ -135,6 +138,8 @@ def parser(bytes_rec):
 
 
 def print_data():
+    print("time", data_rec.time)
+    print("")
     print("first_roll", data_rec.first_roll)
     print("first_pitch", data_rec.first_pitch)
     print("first_yaw", data_rec.first_yaw)
@@ -151,8 +156,6 @@ def print_data():
     print("handle_pitch_with_param", data_rec.handle_pitch_with_param)
     print("pitch_arrow_handle", data_rec.pitch_arrow_handle)
     print("")
-    print("time", data_rec.time)
-    print("")
 
 
 try:
@@ -160,3 +163,4 @@ try:
         send_pkg()
 except KeyboardInterrupt:
     udp_socket.close()
+    f.close()
